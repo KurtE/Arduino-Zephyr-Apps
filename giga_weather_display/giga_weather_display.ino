@@ -1,3 +1,56 @@
+//=============================================================================
+// A Weather display app for the Arduino GIGA board and GIGA Display shield
+// that runs on the Arduino Zephyr setup (Boards->Arduino Zephyr Boards)
+// This sketch was developed to test out different features of the
+// ArduinoCore-zephyr code base on the GIGA. 
+//
+// Developed by: mjs513 and KurtE 
+//
+// It uses the boards built in Wifi controller to communicate with the
+// website open-meteo.com to request location, weather and air quality
+// information, which is returned in a JSON format, which is displayed
+// on the screen. 
+//
+// This sketch stores, the Wifi-security information as well as 
+// site location into a JSON type file, that is stored in the 
+// /storage section of the Flash memory.  This may require you to run
+// the Example: Storage->FlashFormat to both setup the storage area
+// as well as preserve/install the Wifi information. 
+//
+// Note: we have found some GIGAs appear to have issues at times 
+// connecting to the Wifi.  In those cases, we have found that if you
+// turn it off and try again several minutes later it may work again.
+//
+// This sketch also uses the touch controller on the display.  If you
+// click on the 5-day forecast area on a day, the display will be 
+// updated to show that day’s information, clicking the back button, 
+// returns you to the main screen.  If you click on the keyboard
+// icon toward the upper right, it brings up a keyboard entry
+// area which allows you to type in a new location, which can
+// be any location known by open-meteo, including zip codes.
+// Alternatively, you can also type in a new location using
+// the serial monitor.
+//
+// The Keyboard code is a modified version of:
+// https://github.com/KrisKasprzak/ILI9341_t3_Keypad
+//
+// Note: We have found at least two configurations of the GT911
+// touch controller, and this code includes code to detect
+// the two we know of and maps the touch point to the display
+// points for the different orientations of the display.
+//
+// While doing this we have done similar programs on some different hardware
+// specifically on Teensy 4.x boards using different Wifi Setups.
+//     https://github.com/mjs513/Teensy-WiFi-Apps
+//
+// Thes different sketches are discussed on a few different forum threads:
+// https://forum.arduino.cc/t/playing-with-zephyr-v1-0-0-on-giga-and-wifi/1458103
+// https://forum.pjrc.com/index.php?threads/teensy-4-x-esp32-stack.78071/
+// https://forum.pjrc.com/index.php?threads/call-to-arms-teensy-wifi-true.77099/
+//
+// Warning: There are no guarantees or warrantees with this sketch.
+// Use it at your own risk or hopefully fun.
+//=============================================================================
 
 
 #define USE_KEYBOARD
@@ -11,19 +64,19 @@
 #include "Arduino_GigaDisplay_GFX.h"
 
 /******************** GFX FONTS ***********************/
-#include <Fonts/FreeSans9pt7b.h>
-#include <Fonts/FreeSans12pt7b.h>
-#include <Fonts/FreeSans18pt7b.h>
-#include <Fonts/FreeSansBold9pt7b.h>
+//#include <Fonts/FreeSans9pt7b.h>
+//#include <Fonts/FreeSans12pt7b.h>
+//#include <Fonts/FreeSans18pt7b.h>
+//#include <Fonts/FreeSansBold9pt7b.h>
 #include <Fonts/FreeSansBold12pt7b.h>
-#include <Fonts/FreeSansBold18pt7b.h>
+//#include <Fonts/FreeSansBold18pt7b.h>
 //Custom Fonts, https:/rop.nl/truetype2gfx/
 #include "customFonts/FreeSansBold14pt7b.h"
-#include "customFonts/FreeSansBold20pt7b.h"
+//#include "customFonts/FreeSansBold20pt7b.h"
 #include "customFonts/FreeSans14pt7b.h"
-#include "customFonts/FreeSans20pt7b.h"
-#include "customFonts/FreeSans16pt7b.h"
-#include "customFonts/FreeSansBold16pt7b.h"
+//#include "customFonts/FreeSans20pt7b.h"
+//#include "customFonts/FreeSans16pt7b.h"
+//#include "customFonts/FreeSansBold16pt7b.h"
 #include "customFonts/FreeSans10pt7b.h"
 #include "customFonts/FreeSansBold10pt7b.h"
 
@@ -104,32 +157,9 @@ void tft_printf(const char *format, ...) {
 
 
 const GFXfont *cur_gfx_font = nullptr;
-inline void SetTFTFont(int f) {
-  switch (f) {
-    case FONT_10:
-    case FONT_11:
-      cur_gfx_font = &FreeSans10pt7b;
-      tft.setFont(&FreeSans10pt7b);
-      return;
-    case FONT_12:
-      cur_gfx_font = &FreeSans14pt7b;
-      tft.setFont(&FreeSans14pt7b);
-      return;
-
-    case FONT_10_Bold:
-    case FONT_11_Bold:
-      cur_gfx_font = &FreeSansBold10pt7b;
-      tft.setFont(&FreeSansBold10pt7b);
-      return;
-    case FONT_12_Bold:
-      cur_gfx_font = &FreeSansBold12pt7b;
-      tft.setFont(&FreeSansBold12pt7b);
-    case FONT_14_Bold:
-      cur_gfx_font = &FreeSansBold14pt7b;
-      tft.setFont(&FreeSansBold14pt7b);
-      return;
-  }
-
+inline void SetTFTFont(const GFXfont *f) {
+  cur_gfx_font = f;
+  tft.setFont(f);
 }
 
 
@@ -143,7 +173,7 @@ void setup() {
   tft.begin();
   tft.setRotation(1);  // Landscape (480x320)
   tft.fillScreen(COLOR_BG);
-  SetTFTFont(FONT_10);
+  SetTFTFont(&FreeSans10pt7b);
 
 drawWeatherDashboard();
 /**/

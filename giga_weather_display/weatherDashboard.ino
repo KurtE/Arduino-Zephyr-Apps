@@ -112,7 +112,7 @@ void drawWeatherDashboard() {
   // -------------------------------------------------------------
   // 1. HEADER ROW (Full Width)
   // -------------------------------------------------------------
-  SetTFTFont(FONT_14_Bold);
+  SetTFTFont(&FreeSansBold14pt7b);
   tft.setTextColor(COLOR_YELLOW);
   tft.setCursor(20, 20);
   tft.print(weather.location);
@@ -131,7 +131,7 @@ void drawWeatherDashboard() {
   // -------------------------------------------------------------
   tft.drawRoundRect(20, 55, 360, 240, 12, COLOR_YELLOW);
 
-  SetTFTFont(FONT_12_Bold);
+  SetTFTFont(&FreeSansBold12pt7b);
   tft.setCursor(35, 80);
   tft.setTextColor(COLOR_CYAN);
   tft.print("Current Conditions:");
@@ -141,10 +141,10 @@ void drawWeatherDashboard() {
   tft.print(weather.conditionText);
 
   // Current Temperature
-  SetTFTFont(FONT_12_Bold);
+  SetTFTFont(&FreeSansBold12pt7b);
   tft.setTextColor(COLOR_YELLOW);
   tft.setCursor(35, 160);
-  tft_printf("%.1f deg F", weather.currentTemp);
+  tft_printf("%.1f deg F", (double)weather.currentTemp);
 
   // Weather Icon (positioned right inside the box)
   drawPNG(getWeatherIconFilename(weather.currentWmoCode), 230, 125);
@@ -184,7 +184,7 @@ void drawWeatherDashboard() {
     int x = (col == 0) ? col1X : col2X;
     int y = startY + (row * lineSpacing);
 
-    SetTFTFont(FONT_10_Bold);
+    SetTFTFont(&FreeSansBold10pt7b);
     tft.setTextColor(COLOR_CYAN);
     tft.setCursor(x, y);
     tft.print(metrics[i].label);
@@ -203,7 +203,7 @@ void drawWeatherDashboard() {
   int cardY = 310;
   int cardHeight = 155;
 
-  SetTFTFont(FONT_10_Bold);
+  SetTFTFont(&FreeSansBold10pt7b);
   for (int i = 0; i < 5; i++) {
     int x = startX + (i * (colWidth + spacing));
 
@@ -225,11 +225,11 @@ void drawWeatherDashboard() {
     // High / Low Temperatures
     tft.setTextColor(COLOR_ORANGE);
     tft.setCursor(x + 10, cardY + 110);
-    tft_printf("H: %.1fF", weather.tempsHigh[i]);
+    tft_printf("H: %.1fF", (double)weather.tempsHigh[i]);
 
     tft.setTextColor(COLOR_CYAN);
     tft.setCursor(x + 10, cardY + 135);
-    tft_printf("L: %.1fF", weather.tempsLow[i]);
+    tft_printf("L: %.1fF", (double)weather.tempsLow[i]);
   }
 }
 
@@ -248,7 +248,7 @@ void showDayDetailScreen(int dayIndex) {
   // -------------------------------------------------------------
   // 1. TOP HEADER BAR
   // -------------------------------------------------------------
-  SetTFTFont(FONT_14_Bold);
+  SetTFTFont(&FreeSansBold14pt7b);
   tft.setTextColor(COLOR_YELLOW);
   tft.setCursor(20, 20);
   tft_printf("Forecast: %s (%s)", weather.days[dayIndex].c_str(), weather.dates[dayIndex].c_str());
@@ -260,7 +260,7 @@ void showDayDetailScreen(int dayIndex) {
   // -------------------------------------------------------------
   tft.drawRoundRect(20, 65, 360, 330, 12, COLOR_YELLOW);
 
-  SetTFTFont(FONT_14_Bold);
+  SetTFTFont(&FreeSansBold14pt7b);
   tft.setTextColor(COLOR_WHITE);
   tft.setCursor(40, 85);
   tft.print(getWeatherDescription(weather.wmoCodes[dayIndex]));
@@ -268,14 +268,14 @@ void showDayDetailScreen(int dayIndex) {
   const char* icon = getWeatherIconFilename(weather.wmoCodes[dayIndex]);
   drawPNG(icon, 140, 140);
 
-  SetTFTFont(FONT_12_Bold);
+  SetTFTFont(&FreeSansBold12pt7b);
   tft.setTextColor(COLOR_ORANGE);
   tft.setCursor(40, 310);
-  tft_printf("High: %.1f deg F", weather.tempsHigh[dayIndex]);
+  tft_printf("High: %.1f deg F", (double)weather.tempsHigh[dayIndex]);
 
   tft.setTextColor(COLOR_CYAN);
   tft.setCursor(40, 340);
-  tft_printf("Low:  %.1f deg F", weather.tempsLow[dayIndex]);
+  tft_printf("Low:  %.1f deg F", (double)weather.tempsLow[dayIndex]);
 
   // -------------------------------------------------------------
   // 3. DETAILED METRIC LIST (RIGHT: X 400..780)
@@ -302,10 +302,10 @@ void showDayDetailScreen(int dayIndex) {
     { "Max Wind:", String(weather.windMax[dayIndex], 1) + " mph", COLOR_YELLOW },
     { "Max Gusts:", String(weather.gustsMax[dayIndex], 1) + " mph", COLOR_ORANGE }
   };
-  for (int i = 0; i < (sizeof(metrics) / sizeof(metrics[0])); i++) {
+  for (unsigned int i = 0; i < (sizeof(metrics) / sizeof(metrics[0])); i++) {
     int y = startY + (i * spacing);
 
-    SetTFTFont(FONT_12_Bold);
+    SetTFTFont(&FreeSansBold12pt7b);
     tft.setTextColor(COLOR_CYAN);
     tft.setCursor(startX, y);
     tft.print(metrics[i].label);
@@ -319,7 +319,7 @@ void showDayDetailScreen(int dayIndex) {
   // 4. BOTTOM ACTION BAR (BACK BUTTON)
   // -------------------------------------------------------------
   tft.fillRoundRect(20, 410, 760, 55, 10, COLOR_WHITE);
-  SetTFTFont(FONT_14_Bold);
+  SetTFTFont(&FreeSansBold14pt7b);
   tft.setTextColor(COLOR_BLACK);
   tft.setCursor(360, 428);
   tft.print("BACK");
@@ -339,8 +339,8 @@ AQI_Category getAQIInfo(int aqi) {
 
 // Linear Interpolation Equation: I = ((I_high - I_low)/(C_high - C_low)) * (C - C_low) + I_low
 int calculatePM25AQI(float pm25) {
-  if (pm25 < 0.0) return 0;
-  if (pm25 > 500.4) return 500;
+  if (pm25 < 0.0f) return 0;
+  if (pm25 > 500.4f) return 500;
 
   for (int i = 0; i < DAY_COUNT; i++) {
     if (pm25 >= PM25_BREAKPOINTS[i].cLow && pm25 <= PM25_BREAKPOINTS[i].cHigh) {
@@ -362,7 +362,7 @@ void drawAQIMetric(int x, int y, int aqiVal) {
   tft.fillRoundRect(x, y, 200, 24, 6, aqi.color);
 
   // Text label
-  SetTFTFont(FONT_10_Bold);
+  SetTFTFont(&FreeSansBold10pt7b);
 #if defined(ARDUINO_GIGA) || defined(ARDUINO_PORTENTA_H7_M7)
   printk("AQI Font: %p F:%u L:%u, YI:%u\n", cur_gfx_font, cur_gfx_font->first, cur_gfx_font->last, cur_gfx_font->yAdvance);
   const GFXglyph* gA = &cur_gfx_font->glyph['A' - cur_gfx_font->first];
@@ -389,7 +389,7 @@ bool showKeyboard() {
   // 4. BOTTOM ACTION BAR (BACK BUTTON)
   // -------------------------------------------------------------
   //tft.drawRoundRect(20, 255, 120, 45, 8, COLOR_WHITE);
-  //SetTFTFont(FONT_12_Bold);
+  //SetTFTFont(&FreeSansBold12pt7b);
   //tft.setTextColor(COLOR_WHITE);
   //tft.setCursor(55, 500);
   //tft.print("BACK");

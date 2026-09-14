@@ -75,17 +75,18 @@ String buildQueryString(const char* basePath, JsonDocument& params) {
 
 // refine open-meteo wmo code 3 grouping of 1,2,3 into single code
 int refineWMOCode(int originalCode, float cloudCoverMean, float popMax) {
+  UNUSED(popMax);
   // Only refine dry non-precipitating codes (0 to 3)
   if (originalCode > 3) {
     return originalCode;  // Keep rain, snow, fog, thunderstorm codes intact
   }
 
   // Override logic based on mean daily cloud cover percentage
-  if (cloudCoverMean < 10.0) {
+  if (cloudCoverMean < 10.0f) {
     return 0;  // Clear sky
-  } else if (cloudCoverMean >= 10.0 && cloudCoverMean < 35.0) {
+  } else if (cloudCoverMean >= 10.0f && cloudCoverMean < 35.0f) {
     return 1;  // Mainly clear
-  } else if (cloudCoverMean >= 35.0 && cloudCoverMean < 70.0) {
+  } else if (cloudCoverMean >= 35.0f && cloudCoverMean < 70.0f) {
     return 2;  // Partly cloudy
   } else {
     // If cloud cover is high, but PoP is very low, ensure it stays as Overcast (3)

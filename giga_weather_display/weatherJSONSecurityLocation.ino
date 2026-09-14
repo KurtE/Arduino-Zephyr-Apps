@@ -78,7 +78,6 @@ protected:
 
 
 int read_json_security_file() {
-  char buffer[1024];
   struct fs_file_t file;
   fs_file_t_init(&file);
   int ret;
@@ -90,7 +89,6 @@ int read_json_security_file() {
 
 
   JsonDocument doc;
-#if 1
   zephyrFileReader zfsr(&file);
   DeserializationError error = deserializeJson(doc, zfsr);
 
@@ -99,21 +97,6 @@ int read_json_security_file() {
     Serial.println("Failed to close file");
     return ret;
   }
-#else
-  ssize_t cb_read = fs_read(&file, (void *)buffer, sizeof(buffer));
-  if (cb_read < 0) {
-    Serial.println("Failed to read from file");
-    return cb_read;
-  }
-
-  ret = fs_close(&file);
-  if (ret < 0) {
-    Serial.println("Failed to close file");
-    return ret;
-  }
-
-  DeserializationError error = deserializeJson(doc, buffer, cb_read);
-#endif
   if (error) {
     Serial.print("Failed to deserialize: ");
     Serial.println(error.c_str());
@@ -172,11 +155,7 @@ int write_json_security_and_location_file() {
   JsonDocument doc;
   struct fs_file_t file;
   fs_file_t_init(&file);
-#if 1
   zephyrFileWriter zfsw(&file);
-#else
-  char buffer[1024];
-#endif
 
   int ret;
   ret = fs_open(&file, JSON_SECURITY_FILENAME, FS_O_CREATE | FS_O_WRITE);
@@ -201,18 +180,7 @@ int write_json_security_and_location_file() {
 
   weather_loc["cycle_time"] = cycle_time;
 
-#if 1
   serializeJson(doc, zfsw);
-#else
-  size_t len = serializeJson(doc, buffer, sizeof(buffer));
-
-
-  ret = fs_write(&file, buffer, len);
-  if (ret < 0) {
-    Serial.println("Failed to write to file");
-    return ret;
-  }
-#endif
 
   ret = fs_close(&file);
   if (ret < 0) {
