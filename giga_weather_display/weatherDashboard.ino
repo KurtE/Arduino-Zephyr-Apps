@@ -170,17 +170,19 @@ void drawWeatherDashboard() {
     { "Pressure:", String(weather.pressure, 1) + " hPa" },
     { "Rain:", String(weather.rain, 2) + " in" },
     { "Snow:", String(weather.snow, 1) + " in" },
-    { "Precip:", String(weather.precip, 2) + " in" }
+    { "Precip:", String(weather.precip, 2) + " in" },
+    { "PM2.5:",  String(weather.PM25, 2) },
+    { "PM10:",  String(weather.PM10, 2) }
   };
 
   int col1X = 415;  //was 415
   int col2X = 600;
-  int startY = 70;
-  int lineSpacing = 42;
+  int startY = 74;
+  int lineSpacing = 40;
 
-  for (int i = 0; i < 9; i++) {
-    int col = i / 5;  // Left column (0-4), Right column (5-8)
-    int row = i % 5;
+  for (int i = 0; i < (sizeof(metrics) / sizeof(metrics[0])); i++) {
+    int col = i / 6;  // Left column (0-5), Right column 6-...)
+    int row = i % 6;
     int x = (col == 0) ? col1X : col2X;
     int y = startY + (row * lineSpacing);
 
@@ -216,10 +218,10 @@ void drawWeatherDashboard() {
 
     // Date & Day
     tft.setTextColor(COLOR_WHITE);
-    tft.setCursor(x + 10, cardY + 15);
+    tft.setCursor(x + 10, cardY + 20);
     tft.print(weather.dates[i]);
 
-    tft.setCursor(x + 10, cardY + 35);
+    tft.setCursor(x + 10, cardY + 40);
     tft.print(weather.days[i]);
 
     // High / Low Temperatures
