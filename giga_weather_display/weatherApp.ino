@@ -240,6 +240,7 @@ bool sendHourlyRequest() {
 }
 
 bool sendDailyRequest() {
+  //Serial.println("Enter sndDailyRequest"); Serial.flush();
   client.stop();  // Clear existing socket
   if (!client.connect(server, port)) return false;
 
@@ -268,7 +269,9 @@ bool sendDailyRequest() {
   params["temperature_unit"] = "fahrenheit";
   params["precipitation_unit"] = "inch";
 
+  //Serial.println("before BuildQueryString"); Serial.flush();
   String resource = buildQueryString("/v1/forecast", params);
+  //Serial.println("After BuildQueryString"); Serial.flush();
 
   client.print("GET ");
   client.print(resource.c_str());
@@ -276,6 +279,7 @@ bool sendDailyRequest() {
   client.print(" HTTP/1.0\r\nHost: api.open-meteo.com\r\nConnection: close\r\n\r\n");
   headerState = 0;
   headerComplete = false;
+  //Serial.println("Exit sndDailyRequest"); Serial.flush();
   return true;
 }
 
@@ -350,6 +354,7 @@ void printCurrentData() {
   weather.rain = doc["current"]["rain_sum"].as<double>();
   weather.snow = doc["current"]["snowfall_sum"].as<double>();
   weather.precip = doc["current"]["precipitation_sum"].as<double>();
+  Serial.println("return printCurrentData"); Serial.flush();
 }
 
 void printHourlyData() {
@@ -520,6 +525,7 @@ bool processIncomingStream(void (*outputFunc)()) {
       DeserializationError error = deserializeJson(doc, client);
       if (!error) {
         outputFunc();
+        printf("After call  outputFunc con:%u avail:%u\n", client.connected(), client.available());
       } else {
         Serial_printf("JSON Parsing failed: %s\n", error.c_str());
         serializeJsonPretty(doc, Serial);

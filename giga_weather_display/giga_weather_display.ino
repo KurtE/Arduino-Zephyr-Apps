@@ -213,6 +213,7 @@ drawWeatherDashboard();
     if (status == WL_CONNECTED) break;
     delay(3000);
   }
+  printWifiStatus();
   // print your board's IP address:
   Serial.print("Time elapsed in WiFi.begin loop in ms: ");
   Serial.println((uint32_t)(millis() - time_before_wifi_begin));
@@ -254,6 +255,15 @@ void printWifiStatus() {
   Serial.print("IP Address: ");
   Serial.println(ip);
 
+  ip = WiFi.gatewayIP();
+  Serial.print("Gateway IP Address: ");
+  Serial.println(ip);
+
+  ip = WiFi.dnsServerIP();
+  Serial.print("DNS IP Address: ");
+  Serial.println(ip);
+
+
   // print the received signal strength:
   long rssi = WiFi.RSSI();
   Serial.print("signal strength (RSSI):");
@@ -262,6 +272,7 @@ void printWifiStatus() {
 }
 
 void loop() {
+  //Serial.print("loop appstate: "); Serial.println(appState); Serial.flush();
   switch (appState) {
     case FETCH_MAP_CITY_TO_LOCATION:
       Serial.println("\n[0/3] Map City to Location...");
@@ -294,6 +305,7 @@ void loop() {
       if (processIncomingStream(printCurrentData)) {
         appState = FETCH_DAILY;  //was FETCH_HOURLY
       }
+      //Serial.println("After printCurrentData"); Serial.flush();
       break;
 
     case FETCH_HOURLY:
@@ -314,6 +326,7 @@ void loop() {
 
     case FETCH_DAILY:
       Serial.println("\n[3/3] Requesting Daily Forecast...");
+      Serial.flush();
       if (sendDailyRequest()) {
         appState = READ_DAILY;
       } else {
